@@ -1,3 +1,10 @@
+
+## mark
+
+本课程主要记录个人学习MxNet相关理解和笔记。
+
+
+
 # 动手学深度学习
 
 [![Build Status](http://ci.diveintodeeplearning.org/job/zh/job/master/badge/icon)](http://ci.diveintodeeplearning.org/job/zh/job/master/)  
