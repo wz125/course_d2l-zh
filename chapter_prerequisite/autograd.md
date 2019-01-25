@@ -1,6 +1,6 @@
 # 自动求梯度
 
-在深度学习中，我们经常需要对函数求梯度（gradient）。本节将介绍如何使用MXNet提供的`autograd`模块来自动求梯度。如果对本节中的数学概念（如梯度）不是很熟悉，可以参阅附录中[“数学基础”](../chapter_appendix/math.md)一节。
+在深度学习中，我们经常需要对函数求梯度（gradient）。本节将介绍如何使用MXNet提供的`autograd`模块来自动求梯度。如果对本节中的数学概念（如梯度）不是很熟悉，可以参阅附录中[“数学基础”](../chapter_appendix/math.md)一节。 我们的世界
 
 ```{.python .input  n=2}
 from mxnet import autograd, nd

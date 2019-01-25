@@ -25,7 +25,7 @@ $$E(h_i') = \frac{E(\xi_i)}{1-p}h_i = h_i.$$
 
 根据丢弃法的定义，我们可以很容易地实现它。下面的`dropout`函数将以`drop_prob`的概率丢弃`NDArray`输入`X`中的元素。
 
-```{.python .input}
+```{.python .input  n=1}
 import d2lzh as d2l
 from mxnet import autograd, gluon, init, nd
 from mxnet.gluon import loss as gloss, nn
@@ -42,17 +42,56 @@ def dropout(X, drop_prob):
 
 我们运行几个例子来测试一下`dropout`函数。其中丢弃概率分别为0、0.5和1。
 
-```{.python .input}
+```{.python .input  n=2}
 X = nd.arange(16).reshape((2, 8))
 dropout(X, 0)
 ```
 
-```{.python .input}
+```{.json .output n=2}
+[
+ {
+  "data": {
+   "text/plain": "\n[[  0.   1.   2.   3.   4.   5.   6.   7.]\n [  8.   9.  10.  11.  12.  13.  14.  15.]]\n<NDArray 2x8 @cpu(0)>"
+  },
+  "execution_count": 2,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
+```{.python .input  n=3}
 dropout(X, 0.5)
 ```
 
-```{.python .input}
+```{.json .output n=3}
+[
+ {
+  "data": {
+   "text/plain": "\n[[  0.   2.   4.   6.   0.   0.   0.  14.]\n [  0.  18.   0.   0.  24.  26.  28.   0.]]\n<NDArray 2x8 @cpu(0)>"
+  },
+  "execution_count": 3,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
+```{.python .input  n=4}
 dropout(X, 1)
+```
+
+```{.json .output n=4}
+[
+ {
+  "data": {
+   "text/plain": "\n[[ 0.  0.  0.  0.  0.  0.  0.  0.]\n [ 0.  0.  0.  0.  0.  0.  0.  0.]]\n<NDArray 2x8 @cpu(0)>"
+  },
+  "execution_count": 4,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ### 定义模型参数

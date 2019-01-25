@@ -13,7 +13,7 @@
 #Enter password:
 #Verify password:
 #Out[2]: 'sha1:6f6193fcfbd5:614c4ba185334868fc8bbce2e9890b3ef7d1a79b'  
-#jupyter notebook
+#PYTHONIOENCODING=utf-8 jupyter notebook
 
 git add -u ./*
 git commit -m "by wangzh  `date`"

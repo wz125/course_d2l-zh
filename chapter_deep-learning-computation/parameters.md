@@ -4,7 +4,7 @@
 
 我们先定义一个与上一节中相同的含单隐藏层的多层感知机。我们依然使用默认方式初始化它的参数，并做一次前向计算。与之前不同的是，在这里我们从MXNet中导入了`init`模块，它包含了多种模型初始化方法。
 
-```{.python .input  n=1}
+```{.python .input  n=16}
 from mxnet import init, nd
 from mxnet.gluon import nn
 
@@ -25,10 +25,36 @@ Y = net(X)  # 前向计算
 net[0].params, type(net[0].params)
 ```
 
+```{.json .output n=2}
+[
+ {
+  "data": {
+   "text/plain": "(dense0_ (\n   Parameter dense0_weight (shape=(256, 20), dtype=float32)\n   Parameter dense0_bias (shape=(256,), dtype=float32)\n ), mxnet.gluon.parameter.ParameterDict)"
+  },
+  "execution_count": 2,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 可以看到，我们得到了一个由参数名称映射到参数实例的字典（类型为`ParameterDict`类）。其中权重参数的名称为`dense0_weight`，它由`net[0]`的名称（`dense0_`）和自己的变量名（`weight`）组成。而且可以看到，该参数的形状为(256, 20)，且数据类型为32位浮点数（`float32`）。为了访问特定参数，我们既可以通过名字来访问字典里的元素，也可以直接使用它的变量名。下面两种方法是等价的，但通常后者的代码可读性更好。
 
 ```{.python .input  n=3}
 net[0].params['dense0_weight'], net[0].weight
+```
+
+```{.json .output n=3}
+[
+ {
+  "data": {
+   "text/plain": "(Parameter dense0_weight (shape=(256, 20), dtype=float32),\n Parameter dense0_weight (shape=(256, 20), dtype=float32))"
+  },
+  "execution_count": 3,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 Gluon里参数类型为`Parameter`类，它包含参数和梯度的数值，可以分别通过`data`函数和`grad`函数来访问。因为我们随机初始化了权重，所以权重参数是一个由随机数组成的形状为(256, 20)的`NDArray`。
@@ -37,10 +63,36 @@ Gluon里参数类型为`Parameter`类，它包含参数和梯度的数值，可�
 net[0].weight.data()
 ```
 
+```{.json .output n=4}
+[
+ {
+  "data": {
+   "text/plain": "\n[[ 0.06700657 -0.00369488  0.0418822  ..., -0.05517294 -0.01194733\n  -0.00369594]\n [-0.03296221 -0.04391347  0.03839272 ...,  0.05636378  0.02545484\n  -0.007007  ]\n [-0.0196689   0.01582889 -0.00881553 ...,  0.01509629 -0.01908049\n  -0.02449339]\n ..., \n [ 0.00010955  0.0439323  -0.04911506 ...,  0.06975312  0.0449558\n  -0.03283203]\n [ 0.04106557  0.05671307 -0.00066976 ...,  0.06387014 -0.01292654\n   0.00974177]\n [ 0.00297424 -0.0281784  -0.06881659 ..., -0.04047417  0.00457048\n   0.05696651]]\n<NDArray 256x20 @cpu(0)>"
+  },
+  "execution_count": 4,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 权重梯度的形状和权重的形状一样。因为我们还没有进行反向传播计算，所以梯度的值全为0。
 
 ```{.python .input  n=5}
 net[0].weight.grad()
+```
+
+```{.json .output n=5}
+[
+ {
+  "data": {
+   "text/plain": "\n[[ 0.  0.  0. ...,  0.  0.  0.]\n [ 0.  0.  0. ...,  0.  0.  0.]\n [ 0.  0.  0. ...,  0.  0.  0.]\n ..., \n [ 0.  0.  0. ...,  0.  0.  0.]\n [ 0.  0.  0. ...,  0.  0.  0.]\n [ 0.  0.  0. ...,  0.  0.  0.]]\n<NDArray 256x20 @cpu(0)>"
+  },
+  "execution_count": 5,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 类似地，我们可以访问其他层的参数，如输出层的偏差值。
@@ -49,16 +101,55 @@ net[0].weight.grad()
 net[1].bias.data()
 ```
 
+```{.json .output n=6}
+[
+ {
+  "data": {
+   "text/plain": "\n[ 0.  0.  0.  0.  0.  0.  0.  0.  0.  0.]\n<NDArray 10 @cpu(0)>"
+  },
+  "execution_count": 6,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 最后，我们可以使用`collect_params`函数来获取`net`变量所有嵌套（例如通过`add`函数嵌套）的层所包含的所有参数。它返回的同样是一个由参数名称到参数实例的字典。
 
 ```{.python .input  n=7}
 net.collect_params()
 ```
 
+```{.json .output n=7}
+[
+ {
+  "data": {
+   "text/plain": "sequential0_ (\n  Parameter dense0_weight (shape=(256, 20), dtype=float32)\n  Parameter dense0_bias (shape=(256,), dtype=float32)\n  Parameter dense1_weight (shape=(10, 256), dtype=float32)\n  Parameter dense1_bias (shape=(10,), dtype=float32)\n)"
+  },
+  "execution_count": 7,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 这个函数可以通过正则表达式来匹配参数名，从而筛选需要的参数。
 
 ```{.python .input  n=8}
 net.collect_params('.*weight')
+```
+
+```{.json .output n=8}
+[
+ {
+  "data": {
+   "text/plain": "sequential0_ (\n  Parameter dense0_weight (shape=(256, 20), dtype=float32)\n  Parameter dense1_weight (shape=(10, 256), dtype=float32)\n)"
+  },
+  "execution_count": 8,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ## 初始化模型参数
@@ -71,6 +162,19 @@ net.initialize(init=init.Normal(sigma=0.01), force_reinit=True)
 net[0].weight.data()[0]
 ```
 
+```{.json .output n=9}
+[
+ {
+  "data": {
+   "text/plain": "\n[ 0.01074176  0.00066428  0.00848699 -0.0080038  -0.00168822  0.00936328\n  0.00357444  0.00779328 -0.01010307 -0.00391573  0.01316619 -0.00432926\n  0.0071536   0.00925416 -0.00904951 -0.00074684  0.0082254  -0.01878511\n  0.00885884  0.01911872]\n<NDArray 20 @cpu(0)>"
+  },
+  "execution_count": 9,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 下面使用常数来初始化权重参数。
 
 ```{.python .input  n=10}
@@ -78,11 +182,37 @@ net.initialize(init=init.Constant(1), force_reinit=True)
 net[0].weight.data()[0]
 ```
 
+```{.json .output n=10}
+[
+ {
+  "data": {
+   "text/plain": "\n[ 1.  1.  1.  1.  1.  1.  1.  1.  1.  1.  1.  1.  1.  1.  1.  1.  1.  1.\n  1.  1.]\n<NDArray 20 @cpu(0)>"
+  },
+  "execution_count": 10,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 如果只想对某个特定参数进行初始化，我们可以调用`Parameter`类的`initialize`函数，它与`Block`类提供的`initialize`函数的使用方法一致。下例中我们对隐藏层的权重使用Xavier随机初始化方法。
 
 ```{.python .input  n=11}
 net[0].weight.initialize(init=init.Xavier(), force_reinit=True)
 net[0].weight.data()[0]
+```
+
+```{.json .output n=11}
+[
+ {
+  "data": {
+   "text/plain": "\n[ 0.00512482 -0.06579044 -0.10849719 -0.09586414  0.06394844  0.06029618\n -0.03065033 -0.01086642  0.01929168  0.1003869  -0.09339568 -0.08703034\n -0.10472868 -0.09879824 -0.00352201 -0.11063069 -0.04257748  0.06548801\n  0.12987629 -0.13846186]\n<NDArray 20 @cpu(0)>"
+  },
+  "execution_count": 11,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ## 自定义初始化方法
@@ -100,11 +230,42 @@ net.initialize(MyInit(), force_reinit=True)
 net[0].weight.data()[0]
 ```
 
+```{.json .output n=12}
+[
+ {
+  "name": "stdout",
+  "output_type": "stream",
+  "text": "Init dense0_weight (256, 20)\nInit dense1_weight (10, 256)\n"
+ },
+ {
+  "data": {
+   "text/plain": "\n[-5.36596727  7.57739449  8.98637581 -0.          8.8275547   0.\n  5.98405075 -0.          0.          0.          7.48575974 -0.         -0.\n  6.89100075  6.97887039 -6.11315536  0.          5.46652031 -9.73526287\n  9.48517227]\n<NDArray 20 @cpu(0)>"
+  },
+  "execution_count": 12,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
+```
+
 此外，我们还可以通过`Parameter`类的`set_data`函数来直接改写模型参数。例如，在下例中我们将隐藏层参数在现有的基础上加1。
 
 ```{.python .input  n=13}
 net[0].weight.set_data(net[0].weight.data() + 1)
 net[0].weight.data()[0]
+```
+
+```{.json .output n=13}
+[
+ {
+  "data": {
+   "text/plain": "\n[ -4.36596727   8.57739449   9.98637581   1.           9.8275547    1.\n   6.98405075   1.           1.           1.           8.48575974   1.           1.\n   7.89100075   7.97887039  -5.11315536   1.           6.46652031\n  -8.73526287  10.48517227]\n<NDArray 20 @cpu(0)>"
+  },
+  "execution_count": 13,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 ## 共享模型参数
@@ -124,6 +285,19 @@ X = nd.random.uniform(shape=(2, 20))
 net(X)
 
 net[1].weight.data()[0] == net[2].weight.data()[0]
+```
+
+```{.json .output n=14}
+[
+ {
+  "data": {
+   "text/plain": "\n[ 1.  1.  1.  1.  1.  1.  1.  1.]\n<NDArray 8 @cpu(0)>"
+  },
+  "execution_count": 14,
+  "metadata": {},
+  "output_type": "execute_result"
+ }
+]
 ```
 
 我们在构造第三隐藏层时通过`params`来指定它使用第二隐藏层的参数。因为模型参数里包含了梯度，所以在反向传播计算时，第二隐藏层和第三隐藏层的梯度都会被累加在`shared.params.grad()`里。
